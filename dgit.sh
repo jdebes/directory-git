@@ -1,22 +1,25 @@
 #!/bin/bash
-# dgit: do a git push or pulil on all subdirs in current dir
+# dgit: do a git push/pull or checkout on all subdirs in current dir
 
 cd $PWD
 gitArg=$1
+secArg=$2
 
-function doPushPull {
+function dirloop {
 	for d in */; do
 		cd $d
-		echo $gitArg"ing in $d:"
-		git $gitArg 
+		if [ $gitArg == 'push' -o $gitArg == 'pull' ]; then
+			echo $gitArg"ing in $d:"
+			git $gitArg
+		elif [ $gitArg == 'checkout' ]; then
+			echo "checking out to $secArg:"
+		        git $gitArg $secArg
+		else
+        		echo -e 'Bad parameter, please supply a push/pull or checkout parameter.\n E.g dgit pull \n E.g checkout BRANCH'
+        		exit 1
+		fi
 		cd ../
-	done				
+	done	
 }
 
-if [ $gitArg == 'push' -o $gitArg == 'pull' ]; then
-	doPushPull
-	exit 0
-else
-	echo -e 'Bad parameter, please supply a push or pull parameter.\n E.g dgit pull'
-	exit 1
-fi
+dirloop
